@@ -1,26 +1,32 @@
 import 'package:flutter/material.dart';
 
-class TaskItem extends StatelessWidget {
-  final String text;
+class CustomListtile extends StatelessWidget {
+  const CustomListtile({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.trailing,
+  });
 
-  const TaskItem({Key? key, required this.text}) : super(key: key);
+  final String title;
+  final String subtitle;
+  final String trailing;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.all(5.0),
       decoration: BoxDecoration(
-        color: Colors.amber[300],
-        borderRadius: BorderRadius.circular(8),
+        color: Colors.yellow,
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.black87,
-          fontWeight: FontWeight.w500,
+      child: ListTile(
+        title: Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
+        subtitle: Text(subtitle),
+        trailing: Text(trailing, style: TextStyle(fontSize: 20)),
       ),
     );
   }

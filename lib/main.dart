@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:learning_application_api/views/screens/central_screens.dart';
+import 'package:learning_application_api/views/screens/home.dart';
+import 'package:learning_application_api/views/screens/main_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MainApp());
 }
 
-class MyApp extends StatelessWidget {
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Basic Widgets Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: CentralScreen(),
-    );
+    return MaterialApp(home: MainScreen());
   }
 }

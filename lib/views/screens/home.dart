@@ -3,24 +3,26 @@ import 'package:learning_application_api/models/task_models.dart';
 import 'package:learning_application_api/utils/components/custom_appbar.dart';
 import 'package:learning_application_api/utils/components/custom_listtile.dart';
 
-class HomePage extends StatefulWidget {
+class Home extends StatefulWidget {
+  const Home({super.key});
+
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<Home> createState() => _HomeState();
 }
 
-class _HomePageState extends State<HomePage> {
-  bool isLoading = false;
-
+class _HomeState extends State<Home> {
   Map<String, dynamic> result = {};
-  String name = '';
-  List<dynamic> taskList = [];
-  List<dynamic> activeTaskList = [];
-  List<dynamic> incompleteTaskList = [];
+  List<dynamic> tasksList = [];
+  List<dynamic> activeTasksList = [];
+  List<dynamic> incompleteTasksList = [];
+  String userId = '';
+  bool status = false;
+  bool isLoading = false;
 
   @override
   void initState() {
-    fetchTasks();
     super.initState();
+    fetchTasks();
   }
 
   void fetchTasks() async {
@@ -28,21 +30,30 @@ class _HomePageState extends State<HomePage> {
       isLoading = true;
     });
     result = await getTasks();
-    if (!mounted) return; // Checking if you are still in the same widget
-    name = result['user_id'];
-    taskList = result['tasks'];
-    divideTasks(taskList);
+
+    // get tasks list
+    tasksList = result['tasks'];
+
+    // split tasks
+    splitTasks(tasksList);
+
+    // get user id
+    userId = result['user_id'];
+
+    // get status
+    status = result['success'];
+
     setState(() {
       isLoading = false;
     });
   }
 
-  void divideTasks(List<dynamic> taskList) {
-    taskList.forEach((task) {
+  void splitTasks(tasksList) {
+    tasksList.forEach((task) {
       if (task['task_status'] == 'ACTIVE') {
-        activeTaskList.add(task);
-      } else {
-        incompleteTaskList.add(task);
+        activeTasksList.add(task);
+      } else if (task['task_status'] == 'INCOMPLETE') {
+        incompleteTasksList.add(task);
       }
     });
   }
@@ -50,108 +61,95 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Custom AppBar
-      appBar: CustomAppBar(title: 'Home'),
-
-      // Main content area - Safe Area
-      body: Container(
-        color: Color(0xFFFF6D4D),
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                // Welcome Container with Icon
-                Container(
-                  margin: EdgeInsets.all(16),
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Welcome, $name!',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+      backgroundColor: Color(0xFFFF6D4D), // #FF6D4D
+      appBar: CustomAppbar(title: 'Home'),
+      body: Stack(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  // Kotak "Welcome, User!"
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    width: double.infinity,
+                    height: 100,
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Welcome, $userId!',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Icon(Icons.account_circle),
+                        ],
                       ),
-                      SizedBox(width: 8),
-                      Icon(Icons.account_circle, color: Colors.black, size: 28),
-                    ],
+                    ),
                   ),
-                ),
 
-                SizedBox(height: 20),
+                  SizedBox(height: 20),
 
-                // TabBar and TabBarView
-                Expanded(
-                  child: Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16),
+                  // Kotak "Task List"
+                  Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[800],
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(20),
                     ),
+                    width: double.infinity,
+                    height: 500,
                     child: DefaultTabController(
                       length: 2,
                       child: Column(
                         children: [
-                          // TabBar
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            child: TabBar(
-                              indicatorSize: TabBarIndicatorSize.tab,
-                              indicator: UnderlineTabIndicator(
-                                borderSide: BorderSide(
-                                  color: Colors.amber[300]!,
-                                  width: 2,
-                                ),
-                              ),
-                              labelColor: Colors.amber[300],
-                              unselectedLabelColor: Colors.white,
-                              labelStyle: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              tabs: [
-                                Tab(text: 'To Do'),
-                                Tab(text: 'Missed'),
-                              ],
-                            ),
+                          TabBar(
+                            labelColor: Colors.yellow,
+                            unselectedLabelColor: Colors.white,
+                            indicatorColor: Colors.yellow,
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            tabs: [
+                              Tab(text: 'To Do'),
+                              Tab(text: 'Missed'),
+                            ],
                           ),
 
-                          // TabBarView
                           Expanded(
                             child: TabBarView(
                               children: [
-                                // To Do Tab
-                                Container(
-                                  padding: EdgeInsets.all(16),
-                                  child: ListView.builder(
-                                    itemCount: activeTaskList.length,
-                                    itemBuilder: (context, index) {
-                                      return TaskItem(
-                                        text:
-                                            activeTaskList[index]['task_desc'],
-                                      );
-                                    },
-                                  ),
+                                ListView.builder(
+                                  itemCount: activeTasksList.length,
+                                  itemBuilder: (context, index) {
+                                    return CustomListtile(
+                                      title:
+                                          activeTasksList[index]['task_title'],
+                                      subtitle:
+                                          activeTasksList[index]['task_desc'],
+                                      trailing:
+                                          activeTasksList[index]['task_status'],
+                                    );
+                                  },
                                 ),
-
-                                // Missed Tab
-                                Container(
-                                  padding: EdgeInsets.all(16),
-                                  child: ListView.builder(
-                                    itemCount: incompleteTaskList.length,
-                                    itemBuilder: (context, index) {
-                                      return TaskItem(
-                                        text:
-                                            incompleteTaskList[index]['task_desc'],
-                                      );
-                                    },
-                                  ),
+                                ListView.builder(
+                                  itemCount: incompleteTasksList.length,
+                                  itemBuilder: (context, index) {
+                                    return CustomListtile(
+                                      title:
+                                          incompleteTasksList[index]['task_title'],
+                                      subtitle:
+                                          incompleteTasksList[index]['task_desc'],
+                                      trailing:
+                                          incompleteTasksList[index]['task_status'],
+                                    );
+                                  },
                                 ),
                               ],
                             ),
@@ -160,14 +158,13 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                ),
-
-                SizedBox(height: 16),
-              ],
+                ],
+              ),
             ),
-            if (isLoading) Center(child: CircularProgressIndicator()),
-          ],
-        ),
+          ),
+          if (isLoading)
+            Center(child: CircularProgressIndicator(color: Colors.yellow)),
+        ],
       ),
     );
   }
