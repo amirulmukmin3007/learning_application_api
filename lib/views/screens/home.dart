@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:learning_application_api/models/task_models.dart';
+import 'package:learning_application_api/models/task_model.dart';
 import 'package:learning_application_api/utils/components/custom_appbar.dart';
 import 'package:learning_application_api/utils/components/custom_listtile.dart';
 
@@ -25,7 +25,7 @@ class _HomeState extends State<Home> {
     fetchTasks();
   }
 
-  void fetchTasks() async {
+  Future<void> fetchTasks() async {
     setState(() {
       isLoading = true;
     });
